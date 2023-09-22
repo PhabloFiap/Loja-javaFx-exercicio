@@ -3,19 +3,21 @@ package com.example.model;
 import java.math.BigDecimal;
 
 public class Veiculo {
-    
+
     private long id;
     private String marca;
     private String modelo;
     private Integer peso;
     private BigDecimal valor;
+    private Pedido pedido;
 
-    public Veiculo(long id, String marca, String modelo, Integer peso, BigDecimal valor) {
+    public Veiculo(long id, String marca, String modelo, Integer peso, BigDecimal valor, Pedido pedido) {
         this.id = id;
         this.marca = marca;
         this.modelo = modelo;
         this.peso = peso;
         this.valor = valor;
+        this.pedido = pedido;
     }
 
     public long getId() {
@@ -58,6 +60,31 @@ public class Veiculo {
         this.valor = valor;
     }
 
+    public Veiculo marca(String marca) {
+        this.marca = marca;
+        return this;
+    }
+
+      public Veiculo modelo(String modelo) {
+        this.modelo = modelo;
+        return this;
+    }
+      public Veiculo peso(Integer peso) {
+        this.peso = peso;
+        return this;
+    }
+     public Veiculo valor(BigDecimal valor) {
+        this.valor = valor;
+        return this;
+    }
+
+    public Pedido getPedido() {
+        return pedido;
+    }
+
+    public void setPedido(Pedido pedido) {
+        this.pedido = pedido;
+    }
     
 
 }

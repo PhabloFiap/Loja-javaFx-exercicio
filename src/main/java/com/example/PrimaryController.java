@@ -13,10 +13,16 @@ import com.example.model.Veiculo;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.converter.BigDecimalStringConverter;
+import javafx.util.converter.IntegerStringConverter;
 
 public class PrimaryController implements Initializable {
 
@@ -31,6 +37,9 @@ public class PrimaryController implements Initializable {
     @FXML TableColumn<Veiculo, String> colModelo;
     @FXML TableColumn<Veiculo, Integer> colPeso;
     @FXML TableColumn<Veiculo, BigDecimal> colValor;
+    @FXML TableColumn<Veiculo, Pedido> colPedido;
+
+    @FXML ComboBox<Pedido> cbPedido;
 
     public void adicionar(){
         var veiculo = new Veiculo(
@@ -38,7 +47,8 @@ public class PrimaryController implements Initializable {
             txtMarca.getText(), 
             txtModelo.getText(), 
             Integer.valueOf( txtPeso.getText() ), 
-            new BigDecimal( txtValor.getText() )
+            new BigDecimal( txtValor.getText() ),
+            cbPedido.getSelectionModel().getSelectedItem()
         );
 
         try {
@@ -60,30 +70,94 @@ public class PrimaryController implements Initializable {
         }
     }
 
+    public void apagarVeiculo(){
+        var veiculo = tabela.getSelectionModel().getSelectedItem();
+        if(veiculo == null){
+
+            mostraMensagem("Erro","voce deve selecionar um pedido para apagar");
+            return;
+        }
+
+        try {
+            VeiculoDao.apagar(veiculo.getId());
+            tabela.getItems().remove(veiculo);
+        } catch (SQLException e) {
+         mostraMensagem("Erro", "Erro ao apagar");
+            e.printStackTrace();
+        }
+    }
+    public void atualizarProduto(Veiculo produto){
+        try {
+            VeiculoDao.atualizar(produto);
+        } catch (SQLException e) {
+           mostraMensagem("erro","Erro ao atualizar");
+            e.printStackTrace();
+        }
+    }
+
+    private void mostraMensagem(String titulo, String mensagem) {
+
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setHeaderText(titulo);
+        alert.setContentText(mensagem);
+        alert.show();
+    }
+
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
         colMarca.setCellValueFactory(new PropertyValueFactory<>("marca"));
+        colMarca.setCellFactory(TextFieldTableCell.forTableColumn());
+        colMarca.setOnEditCommit(e-> atualizarProduto(e.getRowValue().marca(e.getNewValue())));
+        
+        
+        
         colModelo.setCellValueFactory(new PropertyValueFactory<>("modelo"));
+        colModelo.setCellFactory(TextFieldTableCell.forTableColumn());
+        colModelo.setOnEditCommit(e-> atualizarProduto(e.getRowValue().modelo(e.getNewValue())));
+
         colPeso.setCellValueFactory(new PropertyValueFactory<>("peso"));
+        colPeso.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        colPeso.setOnEditCommit(e-> atualizarProduto(e.getRowValue().peso(e.getNewValue())));
+
         colValor.setCellValueFactory(new PropertyValueFactory<>("valor"));
+        colValor.setCellFactory(TextFieldTableCell.forTableColumn(new BigDecimalStringConverter()));
+        colValor.setOnEditCommit(e-> atualizarProduto(e.getRowValue().valor(e.getNewValue())));
+
+
         colOs.setCellValueFactory(new PropertyValueFactory<>("os") );
+        colStatusPedido.setCellValueFactory(new PropertyValueFactory<>("statusPedido") );
+
+        try {
+            cbPedido.getItems().addAll(PedidoDao.buscarTodosPedido());
+        } catch (SQLException e1) {
+            mostraMensagem("Erro","Erro ao buscar pedidos");
+            e1.printStackTrace();
+        }
 
         carregar();
         carregarPedido();
+
+        tabela.setEditable(true);
+        tabelaPedido.setEditable(true);
     }
 
     @FXML
     private TableView<Pedido> tabelaPedido;
     @FXML
     private TableColumn<Pedido, Integer> colOs;
+     @FXML
+    private TableColumn<Pedido, String> colStatusPedido;
     @FXML
     private TextField txtOs;
+    @FXML
+    private TextField txtStatusPedido;
 
 
         @FXML
         public void adicionarPedido(){
         var pedido = new Pedido(
-          Integer.valueOf( txtOs.getText() )
+          Integer.valueOf( txtOs.getText()),
+          txtStatusPedido.getText()
            
         );
 

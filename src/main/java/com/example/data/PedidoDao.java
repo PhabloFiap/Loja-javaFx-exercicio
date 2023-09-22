@@ -21,9 +21,10 @@ public class PedidoDao {
     public static void inserir(Pedido pedido) throws SQLException {
         var conexao = DriverManager.getConnection(URL, USER, PASS);
 
-        var sql = "INSERT INTO pedidos (os) VALUES (?) ";
+        var sql = "INSERT INTO pedidos (os, statuspedido) VALUES (?,?) ";
         var comando = conexao.prepareStatement(sql);
         comando.setInt(1, pedido.getOs());
+        comando.setString(2, pedido.getStatusPedido());
         comando.executeUpdate();
 
         conexao.close();
@@ -39,7 +40,8 @@ public class PedidoDao {
 
         while(resultado.next()){
             tabelaPedido.add (new Pedido(
-                resultado.getInt("os") 
+                resultado.getInt("os"),
+                resultado.getString("statuspedido") 
                 
             ));
         }
