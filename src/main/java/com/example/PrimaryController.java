@@ -41,6 +41,9 @@ public class PrimaryController implements Initializable {
 
     @FXML ComboBox<Pedido> cbPedido;
 
+    PedidoDao pedidoDao;
+    VeiculoDao veiculoDao;
+
     public void adicionar(){
         var veiculo = new Veiculo(
             0, 
@@ -107,7 +110,7 @@ public class PrimaryController implements Initializable {
     public void initialize(URL arg0, ResourceBundle arg1) {
         colMarca.setCellValueFactory(new PropertyValueFactory<>("marca"));
         colMarca.setCellFactory(TextFieldTableCell.forTableColumn());
-        colMarca.setOnEditCommit(e-> atualizarProduto(e.getRowValue().marca(e.getNewValue())));
+         colMarca.setOnEditCommit(e-> atualizarProduto(e.getRowValue().marca(e.getNewValue())));
         
         
         
@@ -122,13 +125,16 @@ public class PrimaryController implements Initializable {
         colValor.setCellValueFactory(new PropertyValueFactory<>("valor"));
         colValor.setCellFactory(TextFieldTableCell.forTableColumn(new BigDecimalStringConverter()));
         colValor.setOnEditCommit(e-> atualizarProduto(e.getRowValue().valor(e.getNewValue())));
-
+        colPedido.setCellValueFactory(new PropertyValueFactory<>("pedido"));
 
         colOs.setCellValueFactory(new PropertyValueFactory<>("os") );
         colStatusPedido.setCellValueFactory(new PropertyValueFactory<>("statusPedido") );
 
+        
         try {
-            cbPedido.getItems().addAll(PedidoDao.buscarTodosPedido());
+            pedidoDao = new PedidoDao();
+            veiculoDao = new VeiculoDao();
+            cbPedido.getItems().addAll(pedidoDao.buscarTodosPedido());
         } catch (SQLException e1) {
             mostraMensagem("Erro","Erro ao buscar pedidos");
             e1.printStackTrace();
@@ -162,7 +168,7 @@ public class PrimaryController implements Initializable {
         );
 
         try {
-        PedidoDao.inserir(pedido);    
+        pedidoDao.inserir(pedido);    
         tabelaPedido.getItems().add(pedido);
         } catch (Exception e) {
             e.printStackTrace();
@@ -178,7 +184,7 @@ public class PrimaryController implements Initializable {
           public void carregarPedido(){
         tabelaPedido.getItems().clear();
         try {
-            var pedido = PedidoDao.buscarTodosPedido();
+            var pedido = pedidoDao.buscarTodosPedido();
             pedido.forEach(pedidos -> tabelaPedido.getItems().add(pedidos));
         } catch (SQLException e) {
             e.printStackTrace();
