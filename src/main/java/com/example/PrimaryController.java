@@ -191,8 +191,24 @@ public class PrimaryController implements Initializable {
         }
     }
 
+ 
+
         @FXML
-        void excluirPedido(ActionEvent event) {
+        public void excluirPedido() {
+             var pedido = tabelaPedido.getSelectionModel().getSelectedItem();
+        if(pedido == null){
+
+            mostraMensagem("Erro","voce deve selecionar um pedido para apagar");
+            return;
+        }
+
+        try {
+            VeiculoDao.apagar(pedido.getOs());
+            tabelaPedido.getItems().remove(pedido);
+        } catch (SQLException e) {
+         mostraMensagem("Erro", "Erro ao apagar");
+            e.printStackTrace();
+        }
 
         }
 
